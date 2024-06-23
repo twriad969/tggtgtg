@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Watermark</title>
+    <link href="/static/tailwind.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4">Watermark Your Video</h1>
+        <form id="uploadForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Upload Video</label>
+                <input type="file" name="file" class="mt-1 block w-full border-gray-300 rounded-md">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Watermark Text</label>
+                <input type="text" name="watermark_text" class="mt-1 block w-full border-gray-300 rounded-md" placeholder="Enter watermark text">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md">Upload and Watermark</button>
+        </form>
+        <form id="downloadForm" class="space-y-4 mt-6">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Download Video by URL</label>
+                <input type="url" name="url" class="mt-1 block w-full border-gray-300 rounded-md" placeholder="Enter video URL">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Watermark Text</label>
+                <input type="text" name="watermark_text" class="mt-1 block w-full border-gray-300 rounded-md" placeholder="Enter watermark text">
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-md">Download and Watermark</button>
+        </form>
+        <div id="status" class="mt-6"></div>
+    </div>
+    <script>
+        const uploadForm = document.getElementById('uploadForm');
+        const downloadForm = document.getElementById('downloadForm');
+        const statusDiv = document.getElementById('status');
+
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(uploadForm);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            statusDiv.innerHTML = `<a href="\${result.url}" class="text-blue-500">\${result.url}</a>`;
+        });
+
+        downloadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(downloadForm);
+            const response = await fetch('/download', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            statusDiv.innerHTML = `<a href="\${result.url}" class="text-blue-500">\${result.url}</a>`;
+        });
+    </script>
+</body>
+</html>
