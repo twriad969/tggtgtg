@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Watermark</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .skeleton {
+            background-color: #e2e8f0;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
@@ -38,8 +53,21 @@
         const downloadForm = document.getElementById('downloadForm');
         const statusDiv = document.getElementById('status');
 
-        const updateStatus = (url) => {
-            statusDiv.innerHTML = `<a href="${url}" class="text-blue-500">${url}</a>`;
+        const updateStatus = (id, status) => {
+            const statusElement = document.createElement('div');
+            statusElement.classList.add('p-4', 'bg-gray-200', 'rounded-md', 'my-2');
+            statusElement.innerHTML = `
+                <p>File ID: ${id}</p>
+                <p>Status: ${status.status}</p>
+                ${status.url ? `<p><a href="${status.url}" class="text-blue-500">${status.url}</a></p>` : ''}
+            `;
+            statusDiv.appendChild(statusElement);
+        };
+
+        const checkStatus = async (id) => {
+            const response = await fetch(`/status/${id}`);
+            const result = await response.json();
+            updateStatus(id, result);
         };
 
         uploadForm.addEventListener('submit', async (e) => {
@@ -50,7 +78,7 @@
                 body: formData
             });
             const result = await response.json();
-            updateStatus(result.url);
+            checkStatus(result.id);
         });
 
         downloadForm.addEventListener('submit', async (e) => {
@@ -61,12 +89,16 @@
                 body: formData
             });
             const result = await response.json();
-            updateStatus(result.url);
+            checkStatus(result.id);
         });
 
-        // Real-time update simulation (example)
         setInterval(async () => {
-            // Fetch status from the server (if needed)
+            const response = await fetch('/');
+            const statuses = await response.json();
+            statusDiv.innerHTML = '';
+            for (const id in statuses) {
+                updateStatus(id, statuses[id]);
+            }
         }, 5000);
     </script>
 </body>
